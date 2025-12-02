@@ -1,9 +1,9 @@
 module.exports = {
-    HOST: "localhost",
-    USER: "root",
+    HOST:"localhost",
+    USER:"root",
     PASSWORD: "",
-    DB: "iot_solar",
-    dialcet: "mysql",
+    DB:"iot_solar",
+    DIALECT:"mysql",
 
     pool: {
         max: 5,

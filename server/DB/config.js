@@ -7,7 +7,7 @@ const sequelize = new Sequelize(
     info.PASSWORD,
     {
         host: info.HOST,
-        dialect: info.dialcet,
+        dialect: info.DIALECT,
         freezeTableName: true,
         logging: false, 
         operatorsAliases: false,

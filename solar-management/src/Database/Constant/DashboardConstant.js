@@ -36,3 +36,53 @@ export const SET_ADMINS = "SET_ADMINS";
 export const CREATE_ADMIN = "CREATE_ADMIN";
 export const UPDATE_ADMIN = "UPDATE_ADMIN";
 export const DELETE_ADMIN = "DELETE_ADMIN";
+
+
+
+
+
+
+// export const GET_SOLAR_CHARGER = "GET_SOLAR_CHARGER";
+// export const SET_SOLAR_CHARGER = "SET_SOLAR_CHARGER";
+
+// export const GET_INTERNATIONAL_PARTNER = "GET_INTERNATIONAL_PARTNER";
+// export const SET_INTERNATIONAL_PARTNER = "SET_INTERNATIONAL_PARTNER";
+
+// export const GET_INTERNATIONAL_DONOR = "GET_INTERNATIONAL_DONOR";
+// export const SET_INTERNATIONAL_DONOR = "SET_INTERNATIONAL_DONOR";
+
+// export const GET_MOBILE_DEVICE = "GET_MOBILE_DEVICE";
+// export const SET_MOBILE_DEVICE = "SET_MOBILE_DEVICE";
+
+// export const GET_USER_DEVICE = "GET_USER_DEVICE";
+// export const SET_USER_DEVICE = "SET_USER_DEVICE";
+
+// export const GET_SOLAR_LOCAL_DEVICE = "GET_SOLAR_LOCAL_DEVICE";
+// export const SET_SOLAR_LOCAL_DEVICE = "SET_SOLAR_LOCAL_DEVICE";
+// export const SET_SOLAR_LOCAL_DEVICE_FILTER_COLUMN = "SET_SOLAR_LOCAL_DEVICE_FILTER_COLUMN";
+
+// export const FILTER_SOLAR_CHARGER = "FILTER_SOLAR_CHARGER";
+
+// export const GET_NEW_DEVICE_LIST = "GET_NEW_DEVICE_LIST";
+// export const SET_NEW_DEVICE_LIST = "SET_NEW_DEVICE_LIST";
+// export const CREATE_NEW_DEVICE = "CREATE_NEW_DEVICE";
+// // Add these constants
+// export const UPDATE_NEW_DEVICE = "UPDATE_NEW_DEVICE";
+// export const DELETE_NEW_DEVICE = "DELETE_NEW_DEVICE";
+
+// // Add these new constants
+// export const UPLOAD_SOLAR_DATA = "UPLOAD_SOLAR_DATA";
+// export const UPLOAD_SOLAR_DATA_SUCCESS = "UPLOAD_SOLAR_DATA_SUCCESS";
+// export const UPLOAD_SOLAR_DATA_FAIL = "UPLOAD_SOLAR_DATA_FAIL";
+// // Add these constants
+// export const GET_ADMINS = "GET_ADMINS";
+// export const SET_ADMINS = "SET_ADMINS";
+// export const CREATE_ADMIN = "CREATE_ADMIN";
+// export const UPDATE_ADMIN = "UPDATE_ADMIN";
+// export const DELETE_ADMIN = "DELETE_ADMIN";
+
+// // Add these new MQTT constants
+// export const GET_MQTT_STATUS = "GET_MQTT_STATUS";
+// export const SET_MQTT_STATUS = "SET_MQTT_STATUS";
+// export const GET_REALTIME_DATA = "GET_REALTIME_DATA";
+// export const SET_REALTIME_DATA = "SET_REALTIME_DATA";
