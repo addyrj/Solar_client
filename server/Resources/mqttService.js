@@ -15,7 +15,7 @@ class MQTTService {
 
   initialize() {
     // MQTT Configuration
-    const MQTT_HOST = process.env.MQTT_HOST || "mqtt://everonsolar.com:1883";
+    const MQTT_HOST = process.env.MQTT_HOST || "mqtt://bindi-internationalsolar.org:1883";
     const MQTT_USERNAME = process.env.MQTT_USERNAME || "your_username";
     const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "your_password";
     const MQTT_PASSWORD_HASH = require("crypto")
@@ -23,7 +23,7 @@ class MQTTService {
       .update(MQTT_PASSWORD)
       .digest("hex");
 
-    const TOPIC = process.env.MQTT_TOPIC || "mppt_demo";
+    const TOPIC = process.env.MQTT_TOPIC || "BISmppt";
 
     try {
       this.client = mqtt.connect(MQTT_HOST, {
@@ -107,131 +107,108 @@ class MQTTService {
   }
 
   // Process MQTT message and save to database
-  async processMQTTMessage(payload) {
-    try {
-      console.log('🔄 Processing MQTT payload:', payload);
-      
-      const reading = JSON.parse(payload);
-      
-      const Location = reading.ID;
-      const UID = this.crc32(Location).toString();
-      
-      // ✅ CHECK IF DEVICE IS REGISTERED
-      const isRegistered = await this.checkDeviceRegistered(UID);
-      
-      if (!isRegistered) {
-        console.warn(`⚠️  Device ${UID} (Location: ${Location}) is not registered!`);
-        console.warn(`📋 Please register this device first using POST /api/createNewDevice`);
-        console.warn(`📋 Device details needed: UID: ${UID}, Location: ${Location}`);
-        return {
-          success: false,
-          message: "Device not registered",
-          UID,
-          Location
-        };
-      }
+ async processMQTTMessage(payload) {
+  try {
+    console.log("🔄 Raw MQTT payload:", payload);
 
-      console.log(`✅ Device ${UID} is registered, processing data...`);
-      
-      // Convert values based on MQTT payload structure
-      const PvVolt = reading.PVV !== undefined ? reading.PVV  : null;
-      const PvCur = reading.PVC !== undefined ? reading.PVC  : null;
-      const BatVoltage = reading.BV !== undefined ? reading.BV  : null;
-      const BatCurrent = reading.BC !== undefined ? reading.BC  : null;
-      const PVKWh = reading.KWh !== undefined ? reading.KWh  : null;
-      
-      // Default values for required fields
-      const LoadVoltage = BatVoltage;
-      const LoadCurrent = 0;
-      const BatKWh = 0;
-      const Temperature = 0;
-      const IP = "MQTT";
+    // ------------------------------------
+    // FIX INVALID JSON (ID without quotes)
+    // ------------------------------------
+    let fixedPayload = payload
+      .replace(/"ID"\s*:\s*([A-Za-z0-9._-]+)/, `"ID":"$1"`)
+      .replace(/\r?\n|\r/g, "")
+      .trim();
 
-      let RecordTime;
-      try {
-        const [time, date] = reading.Time.split(" ");
-        const [d, m, y] = date.split("/");
-        RecordTime = new Date(`${y}-${m}-${d} ${time}`);
-        
-        if (isNaN(RecordTime.getTime())) {
-          console.log('⚠️  Invalid date format, using current time');
-          RecordTime = new Date();
-        }
-      } catch (dateError) {
-        console.log('⚠️  Date parsing error, using current time:', dateError);
-        RecordTime = new Date();
-      }
+    console.log("🛠️ Fixed MQTT payload:", fixedPayload);
 
-      // Round to second to avoid duplicates
-      const roundToSecond = (date) =>
-        new Date(Math.floor(new Date(date).getTime() / 1000) * 1000);
+    const reading = JSON.parse(fixedPayload);
 
-      const roundedRecordTime = roundToSecond(RecordTime);
+    const Location = reading.ID;
+    const UID = this.crc32(Location).toString();
 
-      // Check for existing record
-      const existingRecord = await this.solarCharger.findOne({
-        where: {
-          UID: UID,
-          RecordTime: roundedRecordTime
-        }
-      });
-
-      if (existingRecord) {
-        console.log('ℹ️  Record already exists, skipping duplicate...');
-        return {
-          success: false,
-          message: "Duplicate record",
-          UID,
-          RecordTime: roundedRecordTime
-        };
-      }
-
-      // Create new record
-      const newRecord = await this.solarCharger.create({
-        Location: Location,
-        UID: UID,
-        PvVolt: PvVolt,
-        PvCur: PvCur,
-        BatVoltage: BatVoltage,
-        BatCurrent: BatCurrent,
-        LoadVoltage: LoadVoltage,
-        LoadCurrent: LoadCurrent,
-        BatKWh: BatKWh,
-        PVKWh: PVKWh,
-        Temperature: Temperature,
-        RecordTime: roundedRecordTime,
-        Time: new Date(),
-        IP: IP
-      });
-
-      console.log('✅ MQTT Data stored successfully:', {
-        ID: newRecord.ID,
-        Location: newRecord.Location,
-        UID: newRecord.UID,
-        BatVoltage: newRecord.BatVoltage,
-        PvVolt: newRecord.PvVolt,
-        PVKWh: newRecord.PVKWh,
-        RecordTime: newRecord.RecordTime
-      });
-
-      return {
-        success: true,
-        record: newRecord
-      };
-
-    } catch (error) {
-      this.errorCount++;
-      console.error('❌ Error processing MQTT message:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack
-      });
-      return {
-        success: false,
-        error: error.message
-      };
+    // ✅ CHECK DEVICE REGISTRATION
+    const isRegistered = await this.checkDeviceRegistered(UID);
+    if (!isRegistered) {
+      console.warn(`⚠️ Device not registered: ${UID} (${Location})`);
+      return;
     }
+
+    // -----------------------------
+    // Data Mapping
+    // -----------------------------
+    const PvVolt = reading.PVV ?? null;
+    const PvCur = reading.PVC ?? null;
+    const BatVoltage = reading.BV ?? null;
+    const BatCurrent = reading.BC ?? null;
+    const PVKWh = reading.KWh ?? null;
+
+    const LoadVoltage = BatVoltage;
+    const LoadCurrent = 0;
+    const BatKWh = 0;
+    const Temperature = 0;
+    const IP = "MQTT";
+
+    // -----------------------------
+    // Time Conversion
+    // -----------------------------
+    let RecordTime;
+    try {
+      const [time, date] = reading.Time.split(" ");
+      const [d, m, y] = date.split("/");
+      RecordTime = new Date(`${y}-${m}-${d} ${time}`);
+      if (isNaN(RecordTime)) RecordTime = new Date();
+    } catch {
+      RecordTime = new Date();
+    }
+
+    const roundedRecordTime = new Date(
+      Math.floor(RecordTime.getTime() / 1000) * 1000
+    );
+
+    // -----------------------------
+    // Avoid Duplicates
+    // -----------------------------
+    const exists = await this.solarCharger.findOne({
+      where: { UID, RecordTime: roundedRecordTime }
+    });
+
+    if (exists) {
+      console.log("ℹ️ Duplicate record skipped");
+      return;
+    }
+
+    // -----------------------------
+    // Save Data
+    // -----------------------------
+    const record = await this.solarCharger.create({
+      Location,
+      UID,
+      PvVolt,
+      PvCur,
+      BatVoltage,
+      BatCurrent,
+      LoadVoltage,
+      LoadCurrent,
+      BatKWh,
+      PVKWh,
+      Temperature,
+      RecordTime: roundedRecordTime,
+      Time: new Date(),
+      IP
+    });
+
+    console.log("✅ MQTT data saved:", {
+      UID,
+      Location,
+      RecordTime: record.RecordTime
+    });
+
+  } catch (error) {
+    this.errorCount++;
+    console.error("❌ MQTT Processing Error:", error.message);
   }
+}
+
 
 
   getStatus() {
@@ -272,7 +249,7 @@ const mqttService = new MQTTService();
 module.exports = mqttService;
 
 
-// const mqtt = require("mqtt");
+
 // const db = require("../DB/config"); 
 // const { Op } = require("sequelize");
 

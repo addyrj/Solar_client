@@ -173,9 +173,7 @@ const getAllSolarCharger = async (req, res) => {
   }
 };
 
-/**
- * Get Solar Charger By ID
- */
+
 const getSolarChargerById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -219,45 +217,46 @@ const getSolarChargerById = async (req, res) => {
   }
 };
 
-/**
- * Get Latest Solar Charger Data
- * Returns the most recent records
- */
 const getLatestSolarCharger = async (req, res) => {
   try {
-    const { limit = 10, deviceId } = req.query;
+    const { limit = 100, page = 1, deviceId } = req.query; // ✅ Add pagination
+    
+    const offset = (page - 1) * limit;
     
     let whereCondition = {};
     if (deviceId) {
       whereCondition.UID = deviceId;
     }
 
-    const latestData = await solarcharger.findAll({
+    const { count, rows: latestData } = await solarcharger.findAndCountAll({
       where: whereCondition,
       order: [['RecordTime', 'DESC']],
-      limit: parseInt(limit)
+      limit: parseInt(limit),
+      offset: parseInt(offset)
     });
 
     res.status(200).json({
       status: 200,
       message: 'Latest solar charger data fetched successfully',
       mqttStatus: mqttService.getStatus(),
-      count: latestData.length,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        pages: Math.ceil(count / limit)
+      },
       data: latestData
     });
   } catch (error) {
-    console.error("Error fetching latest solar charger data:", error);
-    return res.status(500).json({
+    console.error("Error:", error);
+    res.status(500).json({
       status: 500,
-      message: error.message || "Internal Server Error",
+      message: error.message
     });
   }
 };
 
-/**
- * Get Real-time MQTT Data
- * Returns data filtered by device and time range
- */
+
 const getRealtimeData = async (req, res) => {
   try {
     const { deviceId, minutes = 60 } = req.query;
@@ -295,10 +294,7 @@ const getRealtimeData = async (req, res) => {
   }
 };
 
-/**
- * Get Data by Device UID
- * Returns all data for a specific device
- */
+
 const getDataByUID = async (req, res) => {
   try {
     const { uid } = req.params;
@@ -350,10 +346,7 @@ const getDataByUID = async (req, res) => {
   }
 };
 
-/**
- * Get MQTT Status
- * Returns current MQTT connection status
- */
+
 const getMQTTStatus = async (req, res) => {
   try {
     const status = mqttService.getStatus();
@@ -385,10 +378,7 @@ const getMQTTStatus = async (req, res) => {
   }
 };
 
-/**
- * Get Data Statistics
- * Returns statistics about data sources (manual vs MQTT)
- */
+
 const getDataStatistics = async (req, res) => {
   try {
     const totalRecords = await solarcharger.count();

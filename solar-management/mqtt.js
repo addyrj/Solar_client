@@ -166,7 +166,7 @@ initDB();
 // ---------------------------
 // MQTT Configuration
 // ---------------------------
-const MQTT_HOST = "mqtt://everonsolar.com:1883";
+const MQTT_HOST = "mqtt://bindi-internationalsolar.org:1883";
 const MQTT_USERNAME = "";
 const MQTT_PASSWORD = "";       // Actual password
 const MQTT_PASSWORD_HASH = require("crypto")
@@ -174,7 +174,7 @@ const MQTT_PASSWORD_HASH = require("crypto")
   .update(MQTT_PASSWORD)
   .digest("hex");
 
-const TOPIC = "mppt_demo";
+const TOPIC = "BISmppt";
 
 // ---------------------------
 // Convert PHP addToDB()
