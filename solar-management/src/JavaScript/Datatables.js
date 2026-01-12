@@ -12,18 +12,18 @@ export const initDatatable = () => {
         responsive: true,
         dom: 'Bfrtip',
         buttons: [
-            {
-                extend: 'copy',
-                title: 'Product List'
-            },
+            // {
+            //     extend: 'copy',
+            //     title: 'Product List'
+            // },
             {
                 extend: 'excel',
                 title: 'Product List'
             },
-            {
-                extend: 'csv',
-                title: 'Product List'
-            },
+            // {
+            //     extend: 'csv',
+            //     title: 'Product List'
+            // },
             {
                 extend: 'pdf',
                 title: 'Product List'

@@ -6,86 +6,61 @@ const Admin = db.bFootLogin;
 // Middleware/Auth.js
 const AdminAuth = async (req, res, next) => {
   try {
-    console.log("Auth middleware called");
-    console.log("Headers:", req.headers);
-    
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
-      console.log("No authorization header found");
       return res.status(401).json({
         status: 401,
-        message: "Authorization header required"
+        code: "NO_TOKEN",
+        message: "Authorization token missing"
       });
     }
 
-    // Extract token (handle both "Bearer token" and just "token" formats)
-    let token = authHeader;
-    if (authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7); // Remove "Bearer " prefix
-      console.log("Extracted token from Bearer format:", token);
-    } else {
-      console.log("Using token as-is:", token);
-    }
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
 
-    console.log("Token to verify:", token);
-    
-    const verifyToken = jwt.verify(token, process.env.SECRET_KEY_ADMIN_AUTH_TOKEN, (error, decode) => {
+    jwt.verify(token, process.env.SECRET_KEY_ADMIN_AUTH_TOKEN, async (error, decoded) => {
       if (error) {
-        console.log("JWT verification failed:", error.message);
-        return error;
-      } else {
-        console.log("JWT verified successfully, payload:", decode);
-        return decode;
-      }
-    });
+        if (error.name === "TokenExpiredError") {
+          return res.status(401).json({
+            status: 401,
+            code: "TOKEN_EXPIRED",
+            message: "Session expired. Please login again."
+          });
+        }
 
-    if (verifyToken && verifyToken.userId) {
-      console.log("Looking for admin with username:", verifyToken.userId);
-      const adminInfo = await Admin.findOne({ where: { username: verifyToken.userId } });
-      
-      if (!adminInfo) {
-        console.log("Admin not found in database");
         return res.status(401).json({
           status: 401,
+          code: "INVALID_TOKEN",
+          message: "Invalid authentication token"
+        });
+      }
+
+      const adminInfo = await Admin.findOne({
+        where: { username: decoded.userId }
+      });
+
+      if (!adminInfo) {
+        return res.status(401).json({
+          status: 401,
+          code: "USER_NOT_FOUND",
           message: "Admin not found"
         });
       }
-      
-      if (adminInfo.active !== 'Yes') {
-        console.log("Admin account is not active");
-        return res.status(401).json({
-          status: 401,
-          message: "Account disabled"
-        });
-      }
-      
-  req.admin = {
-  id: adminInfo.ID,   // ✅ match DB column
-  username: adminInfo.username,
-  email: adminInfo.email,
-  role: adminInfo.role   // ✅ fetch real role
-};
 
-      
-      console.log("Authentication successful, proceeding to next middleware");
+      req.admin = adminInfo;
       next();
-    } else {
-      console.log("Token verification failed:", verifyToken);
-      return res.status(401).json({
-        status: 401,
-        name: verifyToken.name,
-        message: verifyToken.message
-      });
-    }
-  } catch (error) {
-    console.log("Unexpected error in auth middleware:", error);
+    });
+
+  } catch (err) {
     return res.status(500).json({
       status: 500,
       message: "Internal server error"
     });
   }
 };
+
 
 module.exports = { AdminAuth };
 

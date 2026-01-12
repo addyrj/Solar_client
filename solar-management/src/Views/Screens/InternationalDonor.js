@@ -127,7 +127,7 @@ const InternationalDonor = () => {
                         </button>
 
                         {/* Filter Button */}
-                        <button
+                        {/* <button
                           className="filterButton"
                           disabled={internationalDonor.length === 0}
                           onClick={() =>
@@ -139,10 +139,10 @@ const InternationalDonor = () => {
                           }
                         >
                           <i className="fa-solid fa-filter" style={{ marginRight: "10px" }} /> Filter
-                        </button>
+                        </button> */}
 
                         {/* Sort Button */}
-                        <button
+                        {/* <button
                           className="filterButton"
                           disabled={internationalDonor.length === 0}
                           onClick={() =>
@@ -154,7 +154,7 @@ const InternationalDonor = () => {
                           }
                         >
                           <i className="fa-solid fa-sort" style={{ marginRight: "10px" }} /> Sort
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>

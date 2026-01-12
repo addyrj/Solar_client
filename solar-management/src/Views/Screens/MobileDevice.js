@@ -118,7 +118,7 @@ const MobileDevice = () => {
                           />
                           Create
                         </button>
-                        <button
+                        {/* <button
                           className="filterButton"
                           disabled={mobileDevice.length === 0 ? true : false}
                           onClick={() =>
@@ -151,7 +151,7 @@ const MobileDevice = () => {
                             style={{ marginRight: "10px" }}
                           />
                           Sort
-                        </button>
+                        </button> */}
                         {/* <button
                           className="filterButton"
                           disabled={mobileDevice.length === 0 ? true : false}

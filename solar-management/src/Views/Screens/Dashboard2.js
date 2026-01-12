@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { chartList } from "../Constant/MainFile";
 import { canvasChatOption } from "../../JavaScript/ChartMain";
@@ -66,6 +66,7 @@ const Dashboard2 = () => {
   // ✅ State management
   const [solarData, setSolarData] = useState([]);
   const [filterSolar, setFilter] = useState([]);
+  const currentDeviceDataRef = useRef([]);
   const [solarUniqueId, setSolarUnniqueId] = useState("0");
   const [eventCount, setEventCount] = useState("1");
   const [searchInput, setSearchInput] = useState("");
@@ -112,108 +113,127 @@ const Dashboard2 = () => {
     }
   }, [solarChager]);
 
-  // ✅ Update filter data and mark charts as ready
-  useEffect(() => {
-    const newFilterData = filterSolarData || [];
-    setFilter(newFilterData);
-    
-    if (newFilterData.length > 0) {
-      setIsDataLoading(false);
-      setIsChartReady(true);
-      dispatch(setLoader(false));
-    }
-  }, [filterSolarData, dispatch]);
 
-  // ✅ Device data fetch - FIXED: No infinite loop
-  useEffect(() => {
-    if (solarUniqueId === "0") return;
+// ✅ Update filter data and mark charts as ready
+useEffect(() => {
+  const newFilterData = filterSolarData || [];
+  setFilter(newFilterData);
+  
+  // Update the ref with current device data
+  currentDeviceDataRef.current = newFilterData;
+  
+  if (newFilterData.length > 0) {
+    setIsDataLoading(false);
+    setIsChartReady(true);
+    dispatch(setLoader(false));
+  }
+}, [filterSolarData, dispatch]);
 
-    let isComponentMounted = true;
-    let timeoutId = null;
+// ✅ Device data fetch
+useEffect(() => {
+  if (solarUniqueId === "0") return;
 
-    const fetchDeviceData = async () => {
-      try {
-        setIsDataLoading(true);
-        setEventSourceError(false);
-        
-        const response = await fetch(
-          `${process.env.REACT_APP_BASE_URL}/getSolarChargerByUID/${solarUniqueId}`
-        );
-        
-        if (!isComponentMounted) return;
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log("Fetched device data:", data);
-        
-        if (data && data.status === 200 && data.data) {
-          setEventCount("0");
-          dispatch(filterSolarCharger(data.data));
-          // Loading states will be updated by the filterSolarData useEffect
-        } else {
-          throw new Error("Invalid data structure received");
-        }
-        
-      } catch (error) {
-        console.error("Error fetching device data:", error);
-        if (isComponentMounted) {
-          setEventSourceError(true);
-          setIsDataLoading(false);
-          dispatch(setLoader(false));
-        }
+  let isComponentMounted = true;
+  let timeoutId = null;
+
+  const fetchDeviceData = async () => {
+    try {
+      setIsDataLoading(true);
+      setIsChartReady(false); // Add this line
+      setEventSourceError(false);
+      dispatch(setLoader(true));
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/getSolarChargerByUID/${solarUniqueId}`
+      );
+      
+      if (!isComponentMounted) return;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-
-    // Set timeout for data loading
-    timeoutId = setTimeout(() => {
-      if (isComponentMounted && isDataLoading) {
-        console.error("Data loading timeout - 30 seconds exceeded");
+      
+      const data = await response.json();
+      console.log("Fetched device data for:", solarUniqueId, data);
+      
+      if (data && data.status === 200 && data.data) {
+        setEventCount("0");
+        dispatch(filterSolarCharger(data.data));
+      } else {
+        throw new Error("Invalid data structure received");
+      }
+      
+    } catch (error) {
+      console.error("Error fetching device data:", error);
+      if (isComponentMounted) {
         setEventSourceError(true);
         setIsDataLoading(false);
+        setIsChartReady(false); // Add this line
         dispatch(setLoader(false));
       }
-    }, 30000);
+    }
+  };
 
-    // Initial fetch
-    fetchDeviceData();
+  // Set timeout for data loading
+  timeoutId = setTimeout(() => {
+    if (isComponentMounted && isDataLoading) {
+      console.error("Data loading timeout - 30 seconds exceeded");
+      setEventSourceError(true);
+      setIsDataLoading(false);
+      setIsChartReady(false); // Add this line
+      dispatch(setLoader(false));
+    }
+  }, 30000);
 
-    // Cleanup
-    return () => {
-      isComponentMounted = false;
-      clearTimeout(timeoutId);
-    };
-  }, [solarUniqueId, dispatch]); // ✅ Only depend on solarUniqueId and dispatch
+  // Initial fetch
+  fetchDeviceData();
+
+  // Cleanup
+  return () => {
+    isComponentMounted = false;
+    clearTimeout(timeoutId);
+  };
+}, [solarUniqueId, dispatch]);
 
   // ✅ Theme management
   useEffect(() => {
     setCheckTheme(cookies.get("solorTheme") || "dark");
   }, [cookies]);
 
-  // ✅ Search handler
-  const handleSearch = useCallback((e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchInput(value);
+// ✅ Search handler
+const handleSearch = useCallback((e) => {
+  const value = e.target.value.toLowerCase();
+  setSearchInput(value);
 
-    if (!value) {
-      setSolarData(solarChager || []);
-    } else {
-      const filtered = (solarChager || []).filter(
-        (item) =>
-          item?.UID?.toLowerCase().includes(value) ||
-          item?.Location?.toLowerCase().includes(value)
-      );
-      setSolarData(filtered || []);
-    }
-    setCurrentPage(1);
-  }, [solarChager]);
+  if (!value) {
+    setSolarData(solarChager || []);
+  } else {
+    const filtered = (solarChager || []).filter(
+      (item) =>
+        item?.UID?.toLowerCase().includes(value) ||
+        item?.Location?.toLowerCase().includes(value)
+    );
+    setSolarData(filtered || []);
+  }
+  setCurrentPage(1);
+}, [solarChager]);
 
-  // ✅ Safe data access
-  const currentFilterSolar = filterSolar || [];
-  const firstRecord = currentFilterSolar[0] || {};
-  const hasData = currentFilterSolar.length > 0;
+// ✅ Safe data access
+const currentFilterSolar = filterSolar || [];
+const firstRecord = currentFilterSolar[0] || {};
+const hasData = currentFilterSolar.length > 0;
+
+// ✅ Handle navigation to graph page
+const handleViewGraph = useCallback(() => {
+  if (hasData) {
+    navigate("/show_graph", { 
+      state: { 
+        sourceData: currentFilterSolar,
+        uid: solarUniqueId
+      } 
+    });
+  }
+}, [hasData, currentFilterSolar, solarUniqueId, navigate]);
 
   return (
     <Wrapper>
@@ -326,10 +346,14 @@ const Dashboard2 = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td
+                         <td
                           className={hasData ? "record_style" : "record_style_disabled"}
-                          onClick={() => hasData && navigate("/show_graph", { state: { sourceData: currentFilterSolar } })}
-                          style={{ cursor: hasData ? "pointer" : "not-allowed", opacity: hasData ? 1 : 0.5 }}
+                          onClick={handleViewGraph}
+                          style={{ 
+                            cursor: hasData ? "pointer" : "not-allowed", 
+                            opacity: hasData ? 1 : 0.5,
+                            padding: "15px"
+                          }}
                         >
                           {currentFilterSolar.length} Records {hasData ? "view in graph" : "(no data)"}
                         </td>
@@ -361,18 +385,18 @@ const Dashboard2 = () => {
                     </div>
                   )} */}
 
-                  {isDataLoading && !eventSourceError && (
-                    <div style={{
-                      padding: "20px",
-                      backgroundColor: "#0052cc",
-                      color: "white",
-                      borderRadius: "5px",
-                      marginBottom: "20px",
-                      textAlign: "center"
-                    }}>
-                      Loading device data...
-                    </div>
-                  )}
+                {isDataLoading && !eventSourceError && (
+  <div style={{
+    padding: "20px",
+    backgroundColor: "#0052cc",
+    color: "white",
+    borderRadius: "5px",
+    marginBottom: "20px",
+    textAlign: "center"
+  }}>
+    Loading device data for {solarUniqueId}... {/* Add device ID here */}
+  </div>
+)}
 
                   {isChartReady && hasData && (
                     <div className="col-12 mb-20">
@@ -404,16 +428,16 @@ const Dashboard2 = () => {
                     </div>
                   )}
 
-                  {!isDataLoading && !eventSourceError && !hasData && (
-                    <div style={{
-                      padding: "40px",
-                      textAlign: "center",
-                      color: checkThme === "light" ? "black" : "white",
-                      fontSize: "18px"
-                    }}>
-                      No data available for this device. Please select another device or wait for data to be received.
-                    </div>
-                  )}
+                {!isDataLoading && !eventSourceError && !hasData && solarUniqueId !== "0" && (
+  <div style={{
+    padding: "40px",
+    textAlign: "center",
+    color: checkThme === "light" ? "black" : "white",
+    fontSize: "18px"
+  }}>
+    No data available for device {solarUniqueId}. Please select another device or wait for data to be received.
+  </div>
+)}
                 </div>
               </div>
             </div>

@@ -141,7 +141,7 @@ useEffect(() => {
                           />
                           Create
                         </button>
-                        <button
+                        {/* <button
                           className="filterButton"
                           disabled={!admins || admins.length === 0}
                           onClick={() =>
@@ -157,8 +157,8 @@ useEffect(() => {
                             style={{ marginRight: "10px" }}
                           />
                           Filter
-                        </button>
-                        <button
+                        </button> */}
+                        {/* <button
                           className="filterButton"
                           disabled={admins.length === 0}
                           onClick={() =>
@@ -174,7 +174,7 @@ useEffect(() => {
                             style={{ marginRight: "10px" }}
                           />
                           Sort
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>

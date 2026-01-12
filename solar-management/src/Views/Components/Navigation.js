@@ -97,21 +97,21 @@ const Navigation = () => {
                         <button
                             onClick={() => setShowUploadModal(true)}
                             style={{
-                                background: '#0096c7',
+                                background: '#6a4cff',
                                 border: 'none',
-                                color: '#ffffff',
+                                color: '#f9fbfe',
                                 cursor: 'pointer',
                                 width: '100%',
                                 textAlign: 'left',
                                 padding: '0.5rem 1rem',
                                 fontSize: 'small',
-                                borderRadius: '7px',
+                                // borderRadius: '7px',
                             }}
                         >
-                            <i data-feather="cpu">
+                            {/* <i data-feather="cpu">
                                 <span className="path1" />
                                 <span className="path2" />
-                            </i>
+                            </i> */}
                             Upload Device Data
                         </button>
                     </li>

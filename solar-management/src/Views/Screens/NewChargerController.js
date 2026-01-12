@@ -13,10 +13,23 @@ import "datatables.net-buttons/js/buttons.html5";
 import "datatables.net-buttons/js/buttons.print";
 import "datatables.net-responsive";
 import styled from "styled-components";
-import { changeApistate, changeCreateModalStata, changeModalState, disableFilterCondition, disableSortCondition, setLoader } from "../../Database/Action/ConstantAction";
-import { getNewDeviceList, deleteNewDevice } from "../../Database/Action/DashboardAction";
+import {
+  changeApistate,
+  changeCreateModalStata,
+  changeModalState,
+  disableFilterCondition,
+  disableSortCondition,
+  setLoader,
+} from "../../Database/Action/ConstantAction";
+import {
+  getNewDeviceList,
+  deleteNewDevice,
+} from "../../Database/Action/DashboardAction";
 import NoData from "../Components/NoData";
-import { filterCondition, sortinCondition } from "../Constant/FilterConditionList";
+import {
+  filterCondition,
+  sortinCondition,
+} from "../Constant/FilterConditionList";
 
 // Import the separate components
 import CreateNewCharger from "../../Views/Components/Modal/NewCreateCharger";
@@ -28,10 +41,14 @@ const NewChargerController = () => {
   const createRef = useRef(null);
 
   // Redux state
-  const newDeviceList = useSelector((state) => state.DashboardReducer.newDeviceList);
-  const mainNewDeviceList = useSelector((state) => state.DashboardReducer.mainNewDeviceList);
+  const newDeviceList = useSelector(
+    (state) => state.DashboardReducer.newDeviceList
+  );
+  const mainNewDeviceList = useSelector(
+    (state) => state.DashboardReducer.mainNewDeviceList
+  );
   const apistate = useSelector((state) => state.ConstantReducer.apistate);
-  
+
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -39,9 +56,15 @@ const NewChargerController = () => {
 
   // Filter and sort states
   const columnId = useSelector((state) => state.DashboardReducer.columnId);
-  const conditionId = useSelector((state) => state.DashboardReducer.conditionId);
-  const sortColumnId = useSelector((state) => state.DashboardReducer.sortColumnId);
-  const sortConditionId = useSelector((state) => state.DashboardReducer.sortConditionId);
+  const conditionId = useSelector(
+    (state) => state.DashboardReducer.conditionId
+  );
+  const sortColumnId = useSelector(
+    (state) => state.DashboardReducer.sortColumnId
+  );
+  const sortConditionId = useSelector(
+    (state) => state.DashboardReducer.sortConditionId
+  );
 
   // Component states
   const [devices, setDevices] = useState([]);
@@ -54,11 +77,11 @@ const NewChargerController = () => {
   const isDeviceInactive = useCallback((device) => {
     // Determine which timestamp to use
     let timestamp;
-    
+
     // Priority 1: Use RecordTime if available (telemetry data)
     if (device.RecordTime) {
       timestamp = device.RecordTime;
-    } 
+    }
     // Priority 2: Use Time if available (telemetry data)
     else if (device.Time) {
       timestamp = device.Time;
@@ -75,42 +98,45 @@ const NewChargerController = () => {
     else {
       return true;
     }
-    
+
     // Parse the timestamp
     const recordDate = new Date(timestamp);
-    
+
     // Check if the date is valid
     if (isNaN(recordDate.getTime())) {
       return true; // Invalid date, consider inactive
     }
-    
+
     const currentDate = new Date();
     const diffTime = currentDate - recordDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays > 60;
   }, []);
 
   // Handle Edit - opens EditNewCharger component
   const handleEdit = useCallback((device) => {
-    console.log('Edit device data received:', device);
+    console.log("Edit device data received:", device);
     setSelectedDevice(device);
     setIsEditModalOpen(true);
   }, []);
 
   // Handle Create - opens CreateNewCharger component
   const handleCreate = useCallback(() => {
-    console.log('Create new device');
+    console.log("Create new device");
     setIsCreateModalOpen(true);
   }, []);
 
   // Handle Delete
-  const handleDelete = useCallback((deviceId) => {
-    console.log('Delete device ID:', deviceId);
-    if (window.confirm('Are you sure you want to delete this device?')) {
-      dispatch(deleteNewDevice(deviceId, navigate));
-    }
-  }, [dispatch, navigate]);
+  const handleDelete = useCallback(
+    (deviceId) => {
+      console.log("Delete device ID:", deviceId);
+      if (window.confirm("Are you sure you want to delete this device?")) {
+        dispatch(deleteNewDevice(deviceId, navigate));
+      }
+    },
+    [dispatch, navigate]
+  );
 
   // Handle modal success callbacks
   const handleOperationSuccess = useCallback(() => {
@@ -140,12 +166,17 @@ const NewChargerController = () => {
     );
   };
 
-  const getConditionName = filterCondition.filter((item) => { return item.id === conditionId });
-  const getSortConditionName = sortinCondition.filter((item) => { return item.id === sortConditionId });
+  const getConditionName = Array.isArray(filterCondition)
+    ? filterCondition.filter((item) => item.id === conditionId)
+    : [];
+
+  const getSortConditionName = Array.isArray(sortinCondition)
+    ? sortinCondition.filter((item) => item.id === sortConditionId)
+    : [];
 
   useEffect(() => {
-    dispatch(changeApistate())
-  }, [])
+    dispatch(changeApistate());
+  }, []);
 
   useEffect(() => {
     dispatch(getNewDeviceList({ navigate: navigate }));
@@ -172,14 +203,14 @@ const NewChargerController = () => {
         // Clean up existing DataTable
         if (dataTableRef.current) {
           try {
-            const tableElement = $('#example-datatables');
-            tableElement.off('click.newcharger');
+            const tableElement = $("#example-datatables");
+            tableElement.off("click.newcharger");
 
-            if ($.fn.DataTable.isDataTable('#example-datatables')) {
+            if ($.fn.DataTable.isDataTable("#example-datatables")) {
               dataTableRef.current.destroy(true);
             }
           } catch (error) {
-            console.warn('DataTable cleanup warning:', error);
+            console.warn("DataTable cleanup warning:", error);
           }
           dataTableRef.current = null;
         }
@@ -195,39 +226,45 @@ const NewChargerController = () => {
             dataTableRef.current = dataTable;
 
             // Set up event handlers with namespace
-            $('#example-datatables').on('click.newcharger', '.edit-btn', function (e) {
-              e.stopPropagation();
-              e.preventDefault();
+            $("#example-datatables").on(
+              "click.newcharger",
+              ".edit-btn",
+              function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-              try {
-                const rawData = $(this).attr('data-device');
-                if (rawData) {
-                  const decodedData = decodeURIComponent(rawData);
-                  const device = JSON.parse(decodedData);
-                  handleEdit(device);
+                try {
+                  const rawData = $(this).attr("data-device");
+                  if (rawData) {
+                    const decodedData = decodeURIComponent(rawData);
+                    const device = JSON.parse(decodedData);
+                    handleEdit(device);
+                  }
+                } catch (error) {
+                  console.error("Edit error:", error);
                 }
-              } catch (error) {
-                console.error('Edit error:', error);
               }
-            });
+            );
 
-            $('#example-datatables').on('click.newcharger', '.delete-btn', function (e) {
-              e.stopPropagation();
-              e.preventDefault();
+            $("#example-datatables").on(
+              "click.newcharger",
+              ".delete-btn",
+              function (e) {
+                e.stopPropagation();
+                e.preventDefault();
 
-              const id = $(this).data('id');
-              if (id) {
-                handleDelete(id);
+                const id = $(this).data("id");
+                if (id) {
+                  handleDelete(id);
+                }
               }
-            });
-
+            );
           } catch (error) {
-            console.error('DataTable initialization error:', error);
+            console.error("DataTable initialization error:", error);
           }
         }, 100);
-
       } catch (error) {
-        console.error('Error in DataTable setup:', error);
+        console.error("Error in DataTable setup:", error);
       }
     };
 
@@ -240,14 +277,14 @@ const NewChargerController = () => {
 
       if (dataTableRef.current && mountedRef.current) {
         try {
-          const tableElement = $('#example-datatables');
-          tableElement.off('click.newcharger');
+          const tableElement = $("#example-datatables");
+          tableElement.off("click.newcharger");
 
-          if ($.fn.DataTable.isDataTable('#example-datatables')) {
+          if ($.fn.DataTable.isDataTable("#example-datatables")) {
             dataTableRef.current.destroy(true);
           }
         } catch (error) {
-          console.warn('Final cleanup warning:', error);
+          console.warn("Final cleanup warning:", error);
         }
         dataTableRef.current = null;
       }
@@ -273,7 +310,10 @@ const NewChargerController = () => {
                       <li className="breadcrumb-item" aria-current="page">
                         Devices
                       </li>
-                      <li className="breadcrumb-item active" aria-current="page">
+                      <li
+                        className="breadcrumb-item active"
+                        aria-current="page"
+                      >
                         Charge Controller
                       </li>
                     </ol>
@@ -296,66 +336,115 @@ const NewChargerController = () => {
                           type="button"
                           onClick={handleCreate}
                         >
-                          <i className="fa-solid fa-add" style={{ marginRight: "10px" }} />
+                          <i
+                            className="fa-solid fa-add"
+                            style={{ marginRight: "10px" }}
+                          />
                           Create
                         </button>
-                        <button
+                        {/* <button
                           className="filterButton"
                           onClick={() =>
-                            devices.length !== 0 && openModal(
+                            devices.length !== 0 &&
+                            openModal(
                               "filterModal",
                               Object.keys(devices[0]),
                               devices
                             )
                           }
                         >
-                          <i className="fa-solid fa-filter" style={{ marginRight: "10px" }} />
+                          <i
+                            className="fa-solid fa-filter"
+                            style={{ marginRight: "10px" }}
+                          />
                           Filter
-                        </button>
-                        <button
+                        </button> */}
+                        {/* <button
                           className="filterButton"
                           disabled={devices.length === 0 ? true : false}
                           onClick={() =>
-                            devices.length !== 0 && openModal(
+                            devices.length !== 0 &&
+                            openModal(
                               "sortModal",
                               Object.keys(devices[0]),
                               devices
                             )
                           }
                         >
-                          <i className="fa-solid fa-sort" style={{ marginRight: "10px" }} />
+                          <i
+                            className="fa-solid fa-sort"
+                            style={{ marginRight: "10px" }}
+                          />
                           Sort
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   </div>
 
                   {/* filter condition layout */}
-                  <div className={columnId === "" ? "d-none" : "filterApplyCondition"}>
+                  <div
+                    className={
+                      columnId === "" ? "d-none" : "filterApplyCondition"
+                    }
+                  >
                     <i className="fa-solid fa-filter" />
-                    <p style={{ fontSize: "14px", fontWeight: "medium", marginTop: "14px", marginLeft: "15px" }}>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "medium",
+                        marginTop: "14px",
+                        marginLeft: "15px",
+                      }}
+                    >
                       {columnId + "    " + (getConditionName[0]?.title || "")}
                     </p>
                     <div style={{ marginLeft: "auto" }}>
                       <i
                         className="fa-solid fa-ban"
                         style={{ cursor: "pointer" }}
-                        onClick={() => dispatch(disableFilterCondition({ mainData: mainNewDeviceList, activity: "NewChargerController" }))}
+                        onClick={() =>
+                          dispatch(
+                            disableFilterCondition({
+                              mainData: mainNewDeviceList,
+                              activity: "NewChargerController",
+                            })
+                          )
+                        }
                       />
                     </div>
                   </div>
 
                   {/* filter sort layout */}
-                  <div className={sortColumnId === "" ? "d-none" : "filterApplyCondition"}>
+                  <div
+                    className={
+                      sortColumnId === "" ? "d-none" : "filterApplyCondition"
+                    }
+                  >
                     <i className="fa-solid fa-filter" />
-                    <p style={{ fontSize: "14px", fontWeight: "medium", marginTop: "14px", marginLeft: "15px" }}>
-                      {sortColumnId + "    " + (getSortConditionName[0]?.title || "")}
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "medium",
+                        marginTop: "14px",
+                        marginLeft: "15px",
+                      }}
+                    >
+                      {sortColumnId +
+                        "    " +
+                        (getSortConditionName[0]?.title || "")}
                     </p>
                     <div style={{ marginLeft: "auto" }}>
                       <i
                         className="fa-solid fa-ban"
                         style={{ cursor: "pointer" }}
-                        onClick={() => dispatch(disableSortCondition({ mainSortData: mainNewDeviceList, sortActivity: "NewChargerController" }))}
+                        onClick={() =>
+                          dispatch(
+                            disableSortCondition({
+                              mainSortData: mainNewDeviceList,
+                              sortActivity: "NewChargerController",
+                            })
+                          )
+                        }
                       />
                     </div>
                   </div>
@@ -404,25 +493,57 @@ const NewChargerController = () => {
                               const inactive = isDeviceInactive(item);
                               return (
                                 <tr key={`device-${item?.ID || index}`}>
-                                  <td 
-                                    className={`text-dark ${inactive ? 'inactive-device' : ''}`} 
-                                    style={{ fontSize: "16px" }}
+                                  <td
+                                    className={`text-dark ${
+                                      inactive ? "inactive-device" : ""
+                                    }`}
+                                    style={{
+                                      fontSize: "16px",
+                                      cursor: "pointer",
+                                      textDecoration: "underline",
+                                    }}
+                                    // In NewChargerController.js, modify the onClick handler:
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+
+                                      // Get the device data for this specific device
+                                      const deviceDataForGraph = devices.find(
+                                        (device) => device.UID === item?.UID
+                                      );
+
+                                      navigate("/show_graph", {
+                                        state: {
+                                          uid: item?.UID,
+                                          deviceData: deviceDataForGraph, // Pass the specific device data
+                                        },
+                                      });
+                                    }}
                                   >
                                     <input
                                       className="form-check-input"
                                       type="checkbox"
                                       value={item?.ID}
                                       id={`checkbox-${item?.ID}`}
+                                      onClick={(e) => e.stopPropagation()} // ✅ important
                                     />
                                     {item?.UID}
                                   </td>
+
                                   <td>
-                                    <span className={`status-badge ${inactive ? 'status-inactive' : 'status-active'}`}>
-                                      {inactive ? 'Inactive' : 'Active'}
+                                    <span
+                                      className={`status-badge ${
+                                        inactive
+                                          ? "status-inactive"
+                                          : "status-active"
+                                      }`}
+                                    >
+                                      {inactive ? "Inactive" : "Active"}
                                     </span>
                                   </td>
                                   <td style={{ position: "relative" }}>
-                                    <div style={{ display: "flex", gap: "4px" }}>
+                                    <div
+                                      style={{ display: "flex", gap: "4px" }}
+                                    >
                                       <button
                                         className="delete-btn"
                                         data-id={item?.ID}
@@ -440,7 +561,9 @@ const NewChargerController = () => {
 
                                       <button
                                         className="action-btn edit-btn"
-                                        data-device={encodeURIComponent(JSON.stringify(item))}
+                                        data-device={encodeURIComponent(
+                                          JSON.stringify(item)
+                                        )}
                                         style={{
                                           background: "#0096c7",
                                           color: "white",
@@ -491,7 +614,7 @@ const NewChargerController = () => {
 
       {/* Render CreateNewCharger Modal */}
       {isCreateModalOpen && (
-        <CreateNewCharger 
+        <CreateNewCharger
           isOpen={isCreateModalOpen}
           onClose={handleCloseCreateModal}
           onSuccess={handleOperationSuccess}
@@ -500,7 +623,7 @@ const NewChargerController = () => {
 
       {/* Render EditNewCharger Modal */}
       {isEditModalOpen && selectedDevice && (
-        <EditNewCharger 
+        <EditNewCharger
           deviceData={selectedDevice}
           isOpen={isEditModalOpen}
           onClose={handleCloseEditModal}
@@ -564,7 +687,7 @@ const Wrapper = styled.section`
     padding: 0;
     margin-left: 10px;
     cursor: pointer;
-    
+
     &:focus {
       outline: none;
     }
@@ -577,12 +700,12 @@ const Wrapper = styled.section`
     font-size: 12px;
     font-weight: bold;
   }
-  
+
   .status-active {
     background-color: #d4edda;
     color: #155724;
   }
-  
+
   .status-inactive {
     background-color: #f8d7da;
     color: #721c24;
