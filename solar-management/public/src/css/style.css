@@ -185,8 +185,9 @@ h1, h2, h3, .h1, .h2, .h3 {
 img {
    max-width: 100%;
     background: #837e7e;
-    border-radius: 4px;
-    margin-top: 4px; }
+    border-radius: 8px;
+    /* margin-top: 4px;  */
+  }
 
 .img-fluid {
   width: 100%;
@@ -20718,14 +20719,15 @@ Height property
     line-height: 24px;
     font-size: 1.714rem;
     margin: 0 5px;
-    color: #ffffff;
-    background-color: transparent;
+    /* color: #ffffff; */
+    /* background-color: transparent; */
     border-radius: 5px;
     -webkit-box-shadow: 0 3px 5px 1px rgba(0, 0, 0, 0);
     box-shadow: 0 3px 5px 1px rgba(0, 0, 0, 0); }
     .main-header .push-btn:hover, .main-header .push-btn:active, .main-header .push-btn:focus, .main-header .full-screen:hover, .main-header .full-screen:active, .main-header .full-screen:focus, .main-header .svg-bt-icon:hover, .main-header .svg-bt-icon:active, .main-header .svg-bt-icon:focus, .main-header .skin-toggle:hover, .main-header .skin-toggle:active, .main-header .skin-toggle:focus {
       background-color: rgba(0, 0, 0, 0.03);
-      color: #4d7cff; }
+      color: #4d7cff; 
+    }
   .main-header .push-btn img, .main-header .full-screen img, .main-header .svg-bt-icon img {
     height: 20px;
     width: 20px;
@@ -26218,7 +26220,8 @@ th.fc-day-header {
 /*-- light on-off --*/
 .light-skin .switch-on {
   display: block;
-  color: #ffffff; }
+  /* color: #ffffff; */
+ }
 .light-skin .switch-off {
   display: none; }
 

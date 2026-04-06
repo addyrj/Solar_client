@@ -1,3 +1,4 @@
+//ConstantReducer.js
 import { CHANGE_API_STATE, CHANGE_CREATE_MODAL_SATATE, CHANGE_FILTER_SEARCH_MODEL_STATE, CHANGE_GRAPH_STATE, CHANGE_MODAL_STATE, MY_API_ERROR, SET_APPLY_FILTER_CONDITION, SET_FILTER_DATA, SET_LOADER, SET_THEME_COLOR } from "../Constant/constant";
 import toast from "react-hot-toast"
 const initialState = {

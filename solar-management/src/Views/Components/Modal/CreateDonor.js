@@ -1,151 +1,221 @@
-import React, { useState } from 'react'
-import axios from "axios"
-import { useDispatch } from 'react-redux'
-import { changeApistate, setLoader } from '../../../Database/Action/ConstantAction';
-import { postHeaderWithToken } from '../../../Database/Utils';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { createDonor } from '../../../Database/Action/DashboardAction';
 
-const CreateDonor = () => {
+const CreateDonor = ({ onSuccess, onCancel }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const [donorInfo, setDonorInfo] = useState({
-    country: null,
-    organisation: null,
-    contactPerson: null,
-    mobile: null,
-    email: null,
-    address: null,
-    loginUserName: null,
-    loginPassword: null
-  })
+    country: '',
+    organisation: '',
+    mobile: '',
+    email: '',
+    website: '',
+  });
+
+  const [logoPreview, setLogoPreview] = useState('');
+  const [logoFile, setLogoFile] = useState(null);
 
   const handleChange = (e) => {
-    setDonorInfo({ ...donorInfo, [e.target.name]: e.target.value })
-  }
+    setDonorInfo({ ...donorInfo, [e.target.name]: e.target.value });
+  };
 
-  const createDonor = async () => {
-    const token = await postHeaderWithToken();
-    let formdata = new FormData();
-    formdata.append("country", donorInfo.country);
-    formdata.append("organisation", donorInfo.organisation);
-    formdata.append("contactPerson", donorInfo.contactPerson);
-    formdata.append("mobile", donorInfo.mobile);
-    formdata.append("email", donorInfo.email);
-    formdata.append("address", donorInfo.address);
-    formdata.append("loginUserName", donorInfo.loginUserName);
-    formdata.append("loginPassword", donorInfo.loginPassword);
-    dispatch(setLoader(true))
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
 
-    axios.post(process.env.REACT_APP_BASE_URL + "createInternationalDonor", formdata, token)
-      .then((res) => {
-        if (res.data.status === 200) {
-          dispatch(setLoader(false));
-          dispatch(changeApistate());
-          toast.success(res?.data?.message);
-          window.location.reload(false)
-        }
-      })
-      .catch((error) => {
-        console.log("error is    ", error)
-        dispatch(setLoader(false));
-        if (error?.response?.data?.status === 302) {
-          navigate("/")
-          window.location.reload(false)
-        }
-        toast.error(error?.response?.data?.message || error.message);
-      })
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!donorInfo.country?.trim()) {
+      toast.error('Country is required');
+      return;
+    }
+    if (!donorInfo.organisation?.trim()) {
+      toast.error('Organisation name is required');
+      return;
+    }
+    if (!donorInfo.mobile?.trim()) {
+      toast.error('Mobile number is required');
+      return;
+    }
+    if (!donorInfo.email?.trim()) {
+      toast.error('Email is required');
+      return;
+    }
+
+    const formData = new FormData();
+    
+    formData.append("country", donorInfo.country);
+    formData.append("organisation", donorInfo.organisation);
+    formData.append("mobile", donorInfo.mobile);
+    formData.append("email", donorInfo.email);
+    formData.append("website", donorInfo.website || '');
+    
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    }
+
+    dispatch(createDonor(formData, navigate));
+    if (onSuccess) onSuccess();
+  };
+
   return (
     <div className="box">
-      <div className="box-header with-border">
-        <h4 className="box-title">Create International Donor</h4>
-      </div>
-      {/* /.box-header */}
-      <div className="box-body">
-        <div className="form-group">
-          <label className="form-label">Country</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-flag"></i>
-            </span>
-            <input type="text" className="form-control" name="country" value={donorInfo.country} onChange={handleChange} />
+      <form onSubmit={handleSubmit}>
+        <div className="box-body">
+          <div className="form-group">
+            <label className="form-label">Country <span className="text-danger">*</span></label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-flag"></i>
+              </span>
+              <input 
+                type="text" 
+                className="form-control" 
+                name="country" 
+                value={donorInfo.country} 
+                onChange={handleChange}
+                placeholder="Enter country"
+                required
+              />
+            </div>
           </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Organisation</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-globe"></i>
-            </span>
-            <input type="email" className="form-control" name="organisation" value={donorInfo.organisation} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Contact Person</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-map-location-dot"></i>
-            </span>
-            <input type="email" className="form-control" name="contactPerson" value={donorInfo.contactPerson} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Mobile</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-location-dot"></i>
-            </span>
-            <input type="email" className="form-control" name="mobile" value={donorInfo.mobile} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-heading"></i>
-            </span>
-            <input type="email" className="form-control" name="email" value={donorInfo.email} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Address</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-hand-holding-heart"></i>
-            </span>
-            <input type="email" className="form-control" name="address" value={donorInfo.address} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Login User Name</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-handshake"></i>
-            </span>
-            <input type="email" className="form-control" name="loginUserName" value={donorInfo.loginUserName} onChange={handleChange} />
-          </div>
-        </div>
-        <div className="form-group">
-          <label className="form-label">Login Password</label>
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fa-solid fa-calendar-days"></i>
-            </span>
-            <input type="password" className="form-control" name="loginPassword" value={donorInfo.loginPassword} onChange={handleChange} />
-          </div>
-        </div>
-      </div>
-      <div className="box-footer" style={{ float: "right", width: 'auto' }}>
-        <button type="button" className="btn btn-primary-light me-1" data-bs-dismiss="modal">
-          <i className="ti-trash" /> Cancel
-        </button>
-        <button type="submit" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => createDonor()}>
-          <i className="ti-save-alt" /> Save
-        </button>
-      </div>
-    </div>
-  )
-}
 
-export default CreateDonor
+          <div className="form-group">
+            <label className="form-label">Organisation <span className="text-danger">*</span></label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-building"></i>
+              </span>
+              <input 
+                type="text" 
+                className="form-control" 
+                name="organisation" 
+                value={donorInfo.organisation} 
+                onChange={handleChange}
+                placeholder="Enter organisation name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Mobile <span className="text-danger">*</span></label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-phone"></i>
+              </span>
+              <input 
+                type="tel" 
+                className="form-control" 
+                name="mobile" 
+                value={donorInfo.mobile} 
+                onChange={handleChange}
+                placeholder="Enter mobile number"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Email <span className="text-danger">*</span></label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-envelope"></i>
+              </span>
+              <input 
+                type="email" 
+                className="form-control" 
+                name="email" 
+                value={donorInfo.email} 
+                onChange={handleChange}
+                placeholder="Enter email address"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Website</label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-globe"></i>
+              </span>
+              <input 
+                type="url" 
+                className="form-control" 
+                name="website" 
+                value={donorInfo.website} 
+                onChange={handleChange}
+                placeholder="e.g., https://example.com"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Logo (Image only)</label>
+            <div className="input-group mb-3">
+              <span className="input-group-text">
+                <i className="fa-solid fa-image"></i>
+              </span>
+              <input 
+                type="file" 
+                className="form-control" 
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </div>
+            {logoPreview && (
+              <div className="mt-2 text-center">
+                <img 
+                  src={logoPreview} 
+                  alt="Preview" 
+                  style={{ 
+                    maxWidth: '150px', 
+                    maxHeight: '80px', 
+                    objectFit: 'contain',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '4px',
+                    padding: '4px'
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="box-footer"
+          style={{
+            float: "right",
+            width: "auto",
+            borderColor: "transparent",
+            padding: "15px 0"
+          }}
+        >
+          <button
+            type="button"
+            className="btn btn-primary-light me-1"
+            onClick={onCancel}
+          >
+            <i className="ti-trash" /> Cancel
+          </button>
+          <button type="submit" className="btn btn-primary">
+            <i className="ti-save-alt" /> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default CreateDonor;

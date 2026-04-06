@@ -2,9 +2,7 @@ const isEmpty = require("lodash.isempty");
 const CryptoJS = require("crypto-js");
 const db = require("../../DB/config");
 const jwt = require("jsonwebtoken");
-// const request = require("request");
-// const axios = require("axios")
-// const fetch = require("node-fetch");
+
 
 const Login = db.bFootLogin;
 

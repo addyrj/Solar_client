@@ -1,11 +1,11 @@
 require("dotenv").config();
 
 module.exports = {
-    HOST: process.env.DB_HOST || "127.0.0.1",
-    USER: process.env.DB_USER || "root",
-    PASSWORD: process.env.DB_PASSWORD || "",
-    DB: process.env.DB_NAME || "iot_solar",
-    DIALECT: process.env.DB_DIALECT || "mysql",
+    HOST: process.env.DB_HOST,
+    USER: process.env.DB_USER,
+    PASSWORD: process.env.DB_PASSWORD,
+    DB: process.env.DB_NAME,
+    DIALECT: process.env.DB_DIALECT,
 
     pool: {
         max: 5,
@@ -21,7 +21,7 @@ module.exports = {
 
 // module.exports = {
 //     HOST: process.env.HOST || "127.0.0.1",
-//     USER: process.env.USER || "root",
+//     USER: process.env.DB_USER || "root",
 //     PASSWORD: process.env.PASSWORD || "",
 //     DB: process.env.DATABASE_NAME,
 //     DIALECT: process.env.DIALECT || "mysql",

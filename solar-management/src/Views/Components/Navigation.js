@@ -34,10 +34,12 @@ const Navigation = () => {
                 ? setActiveNav("new_charge_controller")
                 // : location.pathname === "/charger_controller"
                 //     ? setActiveNav("charge_controller")
-                : location.pathname === "/international_donor"
-                    ? setActiveNav("international_donor")
-                    : location.pathname === "/international_partner"
-                        ? setActiveNav("international_partner")
+                 : location.pathname === "/rew_device"
+                    ? setActiveNav("rew_device")
+                : location.pathname === "/our_donors"
+                    ? setActiveNav("our_donors")
+                    : location.pathname === "/iot_map"
+                        ? setActiveNav("iot_map")
                         : location.pathname === "/mobile_device"
                             ? setActiveNav("mobile_device")
                             : location.pathname === "/administrator"
@@ -90,7 +92,19 @@ const Navigation = () => {
                                 <span className="path1" />
                                 <span className="path2" />
                             </i>
-                            Latest Controller
+                            Charger Controller
+                        </NavLink>
+                    </li>
+                        <li>
+                        <NavLink
+                            to={"/rew_device"}
+                            style={{ color: themeSetting.headerTextColor }}
+                        >
+                            <i data-feather="smartphone">
+                                <span className="path1" />
+                                <span className="path2" />
+                            </i>
+                            Rew Device
                         </NavLink>
                     </li>
                     <li>
@@ -103,22 +117,22 @@ const Navigation = () => {
                                 cursor: 'pointer',
                                 width: '100%',
                                 textAlign: 'left',
-                                padding: '0.5rem 1rem',
-                                fontSize: 'small',
-                                // borderRadius: '7px',
+                                padding: '0.6rem 1rem',
+                                fontSize: '13px',
+                                borderRadius: '2px',
                             }}
                         >
                             {/* <i data-feather="cpu">
                                 <span className="path1" />
                                 <span className="path2" />
                             </i> */}
-                            Upload Device Data
+                            Upload Offline Data
                         </button>
                     </li>
                   
                     <li>
                         <NavLink
-                            to={"/international_donor"}
+                            to={"/our_donors"}
                             style={{ color: themeSetting.headerTextColor }}
                         >
                             <i data-feather="gift">
@@ -130,7 +144,7 @@ const Navigation = () => {
                     </li>
                     <li>
                         <NavLink
-                            to={"/international_partner"}
+                            to={"/iot_map"}
                             style={{ color: themeSetting.headerTextColor }}
                         >
                             <i data-feather="users">
@@ -138,6 +152,7 @@ const Navigation = () => {
                                 <span className="path2" />
                             </i>
                             Iot Systems & Map
+                            
                         </NavLink>
                     </li>
                     {/* <li>

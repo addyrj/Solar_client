@@ -9,7 +9,15 @@ module.exports = (sequelize, DataTypes) => {
         UID: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true, // UID must always be unique
+            unique: true,
+        },
+        Location: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        CLocation: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         Country: {
             type: DataTypes.STRING,
@@ -31,7 +39,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
-      
         DonarName: {
             type: DataTypes.STRING,
             allowNull: true,
@@ -52,10 +59,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
-        Location: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
         SolarEngineerName: {
             type: DataTypes.STRING,
             allowNull: true,
@@ -72,9 +75,26 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
+          donor_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'donor', // Make sure this matches your donor table name
+                key: 'id'
+            }
+        },
+        // Foreign key to REW
+        rew_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'rew',
+                key: 'id'
+            }
+        },
     }, {
         tableName: 'newdevicelocationdetails',
-        timestamps: true, // this adds createdAt and updatedAt automatically
+        timestamps: true,
     });
 
     return NewDeviceLocationDetail;

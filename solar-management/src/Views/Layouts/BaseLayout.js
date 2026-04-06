@@ -1,4 +1,6 @@
+// Views/Layouts/BaseLayout.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
 import Navigation from "../Components/Navigation";
@@ -17,14 +19,15 @@ import Profile from "../Components/Profile";
 import Cookies from "universal-cookie";
 import FilterSearchModal from "../Components/Modal/FilterSearchModal";
 import { filterModelStyle } from "../../Style/ModalStyle";
-import { getSolarLocalDevice } from "../../Database/Action/DashboardAction";
 import "../../Style/modal_custom.css";
 import NewCreateCharger from "../Components/Modal/NewCreateCharger";
 import CreateCharger from "../Components/Modal/CreateCharger";
 import CreatePartner from "../Components/Modal/CreatePartner";
 import CreateDonor from "../Components/Modal/CreateDonor";
-import CreateMobileDevice from "../Components/Modal/CreateMobileDevice";
 import CreateAdministrator from "../Components/Modal/CreateAdministrator";
+import { checkTokenExpiration, logout } from '../../Database/logout';
+import toast from "react-hot-toast";
+
 const customStyles = {
     content: {
         top: "50%",
@@ -40,6 +43,7 @@ const customStyles = {
 };
 
 const BaseLayout = ({ children }) => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const modalState = useSelector((state) => state.ConstantReducer.modalState);
     const createModastate = useSelector(
@@ -49,7 +53,7 @@ const BaseLayout = ({ children }) => {
         (state) => state.ConstantReducer.filterModelState
     );
     const cookies = new Cookies();
-
+  
     const loader = useSelector((state) => state.ConstantReducer.loader);
     const [checkThme, setCheckTheme] = useState("dark");
     const [themeSetting, setThemeSetting] = useState({
@@ -74,10 +78,55 @@ const BaseLayout = ({ children }) => {
             setThemeSetting(themeCookie);
         }
     }, []);
-
+    
+    // Function to check token expiration and redirect if needed
+    const checkTokenAndRedirect = () => {
+        const cookies = new Cookies();
+        const token = cookies.get("adminToken");
+        
+        if (!token) {
+            // No token, redirect to login
+            navigate("/");
+            return false;
+        }
+        
+        try {
+            // Decode token to check expiration
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+            
+            if (payload.exp) {
+                const expirationTime = payload.exp * 1000; // Convert to milliseconds
+                const currentTime = Date.now();
+                
+                if (currentTime >= expirationTime) {
+                    // Token expired
+                    cookies.remove("adminToken");
+                    cookies.remove("rememberMe");
+                    toast.error("Your session has expired. Please login again.");
+                    navigate("/");
+                    return false;
+                }
+            }
+            return true;
+        } catch (error) {
+            console.error("Error checking token expiration:", error);
+            return false;
+        }
+    };
+    
     useEffect(() => {
-        dispatch(getSolarLocalDevice());
-    }, [dispatch]);
+        // Check token on component mount
+        checkTokenAndRedirect();
+        
+        // Check token expiration periodically (every 30 seconds)
+        const interval = setInterval(() => {
+            checkTokenAndRedirect();
+        }, 30000); // Check every 30 seconds
+        
+        return () => clearInterval(interval);
+    }, [navigate]);
 
     return (
         <body
@@ -91,9 +140,6 @@ const BaseLayout = ({ children }) => {
         >
             <div className="wrapper">
                 {loader && <Loader />}
-                {/* {loader && <div className="loader">
-                    <Loader />
-                </div>} */}
                 <Modal
                     isOpen={modalState?.openState}
                     onAfterOpen={afterOpenModal}
@@ -148,16 +194,12 @@ const BaseLayout = ({ children }) => {
                                 <CreatePartner />
                             ) : createModastate?.screenName === "Donor" ? (
                                 <CreateDonor />
-                            ) : createModastate?.screenName === "MobileDevice" ? (
-                                <CreateMobileDevice />
                             ) : createModastate?.screenName === "Administrator" ? (
                                 <CreateAdministrator />
                             ) : (
                                 ""
                             )}
                         </div>
-
-
                     </div>
                 </div>
                 <Header />

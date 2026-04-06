@@ -20,7 +20,8 @@ File: horizontal menu scss
   .layout-top-nav.fixed .content-wrapper {
     margin-top: 135px; }
   .layout-top-nav.fixed .main-header {
-    background: #0E0E23; } }
+    /* background: #0E0E23; */
+   } }
 @media (max-width: 767px) {
   .layout-top-nav .content-wrapper, .layout-top-nav .main-footer, .layout-top-nav .main-nav > .navbar {
     width: 95%;
@@ -31,7 +32,9 @@ File: horizontal menu scss
   .layout-top-nav .main-header .inside-header {
     width: 95%;
     margin: 0 auto;
-    background: #0E0E23; }
+    
+    /* background: #0E0E23;  */
+  }
   .layout-top-nav .main-header .logo-box {
     border-right: none !important; }
     .layout-top-nav .main-header .logo-box .logo {
@@ -49,13 +52,14 @@ File: horizontal menu scss
   border-bottom: 1px solid #b6b6c4; }
 .layout-top-nav .main-nav {
   background: #0E0E23;
-  box-shadow: 0px 2px 5px 0px rgba(19, 23, 38, 0);
+  /* box-shadow: 0px 2px 5px 0px rgba(19, 23, 38, 0); */
   padding: 5px 0px 12px 0px;
-  z-index: 99;
+  z-index: 999;
   position: relative;
   margin: 10px auto 0;
   border-radius: 5px;
-  border-bottom: 1px solid #b6b6c4; }
+  border-bottom: 1px solid #b6b6c4; 
+}
   .layout-top-nav .main-nav:after {
     clear: both;
     content: "\00a0";

@@ -1,3 +1,4 @@
+//constant.js
 export const SET_LOADER = "SET_LOADER";
 export const MY_API_ERROR = "MY_API_ERROR";
 

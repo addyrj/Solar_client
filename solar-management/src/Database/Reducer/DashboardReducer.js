@@ -1,10 +1,36 @@
-import { DISABLE_FILTER_CONDITION, DISABLE_SORT_CONDITION, SET_APPLY_FILTER_CONDITION, SET_APPLY_SORT_CONDITION, SET_RANDOM_QUESTION } from "../Constant/constant"
-import { FILTER_SOLAR_CHARGER, SET_INTERNATIONAL_DONOR, SET_INTERNATIONAL_PARTNER, SET_MOBILE_DEVICE, SET_SOLAR_CHARGER, SET_SOLAR_LOCAL_DEVICE, SET_SOLAR_LOCAL_DEVICE_FILTER_COLUMN, SET_USER_DEVICE ,SET_NEW_DEVICE_LIST, UPLOAD_SOLAR_DATA,UPLOAD_SOLAR_DATA_SUCCESS,UPLOAD_SOLAR_DATA_FAIL,UPDATE_NEW_DEVICE,DELETE_NEW_DEVICE,SET_ADMINS} from "../Constant/DashboardConstant"
+//DashboardReducer.js
+import { 
+  DISABLE_FILTER_CONDITION, 
+  DISABLE_SORT_CONDITION, 
+  SET_APPLY_FILTER_CONDITION, 
+  SET_APPLY_SORT_CONDITION, 
+  SET_RANDOM_QUESTION 
+} from "../Constant/constant"
+import { 
+  FILTER_SOLAR_CHARGER, 
+  SET_INTERNATIONAL_DONOR, 
+  SET_INTERNATIONAL_PARTNER, 
+  SET_MOBILE_DEVICE, 
+  SET_SOLAR_CHARGER, 
+  SET_SOLAR_LOCAL_DEVICE, 
+  SET_SOLAR_LOCAL_DEVICE_FILTER_COLUMN, 
+  SET_USER_DEVICE, 
+  SET_NEW_DEVICE_LIST, 
+  UPLOAD_SOLAR_DATA,
+  UPLOAD_SOLAR_DATA_SUCCESS,
+  UPLOAD_SOLAR_DATA_FAIL,
+  UPDATE_NEW_DEVICE,
+  DELETE_NEW_DEVICE,
+  SET_ADMINS,
+  SET_UNREGISTERED_DEVICES,
+  SET_REW,
+  SET_DONOR_BY_ID
+} from "../Constant/DashboardConstant"
 
 const initialState = {
     randomQuestion: [],
     solarChager: [],
-      admins: [],
+    admins: [],
     mainAdmins: [],
     newDeviceList: [],
     mainNewDeviceList: [],
@@ -19,10 +45,14 @@ const initialState = {
     mainMobileDevice: [],
     userDevice: [],
     mainUserDevice: [],
+    rew: [],
+mainRew: [],
     columnId: "",
     conditionId: "",
     sortColumnId: "",
     sortConditionId: "",
+    unregisteredDevices: [],
+    mainUnregisteredDevices: [],
     filterColumn: {
         countryColumn: [],
         provienceColumn: [],
@@ -343,15 +373,33 @@ const DashboardReducer = (state = initialState, action) => {
                 uploadSolarLoading: false,
                 uploadSolarError: action.payload
             };
+            
+        case SET_UNREGISTERED_DEVICES:
+            return {
+                ...state,
+                unregisteredDevices: action.payload,
+                mainUnregisteredDevices: action.payload
+            }
   
-case SET_ADMINS:
+        case SET_ADMINS:
+            return {
+                ...state,
+                admins: action.payload,
+                mainAdmins: action.payload
+            }
+            // Add these cases to your reducer
+case SET_REW:
   return {
     ...state,
-    admins: action.payload,
-    mainAdmins: action.payload
+    rew: action.payload,
+    mainRew: action.payload
   }
-
-
+  case SET_DONOR_BY_ID:
+    return {
+        ...state,
+        donorById: action.payload
+    }
+  
 
         default:
             return state;

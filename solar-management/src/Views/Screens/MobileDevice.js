@@ -70,7 +70,7 @@ const MobileDevice = () => {
         <div className="container-full">
           {/* Content Header (Page header) */}
           {/* Main content */}
-          <div className="content-header">
+          {/* <div className="content-header">
             <div className="d-flex align-items-center">
               <div className="me-auto">
                 <h3 className="page-title">Data Tables</h3>
@@ -96,7 +96,7 @@ const MobileDevice = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <section className="content">
             <div className="row">

@@ -10,7 +10,7 @@ const Footer = () => {
       
       }}
     >
-      © 2025 and beyond <a href="#">Bindi International</a>. All Rights Reserved.
+      © 2026 and beyond <a href="#">Bindi International</a>. All Rights Reserved.
     </footer>
   );
 };

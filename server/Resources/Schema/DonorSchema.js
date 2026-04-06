@@ -1,3 +1,4 @@
+// In your DB config file where donor schema is defined
 module.exports = (sequelize, DataTypes) => {
     const DonorSchema = sequelize.define("donor", {
         ID: {
@@ -14,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         DonarOrganisation: {
             type: DataTypes.STRING,
             allowNull: true,
-            unique: true, // Add unique constraint
+            unique: true, // Organisation name should be unique
         },
         Mobile: {
             type: DataTypes.STRING,
@@ -27,12 +28,25 @@ module.exports = (sequelize, DataTypes) => {
         Website: {
             type: DataTypes.STRING,
             allowNull: true,
-            unique: true, // Add unique constraint
+            unique: true, // Website should be unique
         },
+        Logo: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            comment: 'Path to donor logo/image (e.g., /files/donor-logos/filename.jpg)'
+        },
+        DonorDevice: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+            comment: 'Number of devices associated with this donor'
+        }
     },
     {
         tableName: 'donor',
-        timestamps: false,
+        timestamps: false, // Set to true if you want createdAt/updatedAt
+      
     });
+    
     return DonorSchema;
 };
